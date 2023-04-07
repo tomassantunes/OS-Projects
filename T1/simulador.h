@@ -1,10 +1,13 @@
 #ifndef _Simulador_h
 #define _Simulador_h
 
+#define NUMSTATES 8
+
 typedef struct {
-    char* state;
-    int time;
-    int num;
-} Process;
+    int start;
+    int exec;
+    int state;
+    int* time;
+} Program;
 
 #endif

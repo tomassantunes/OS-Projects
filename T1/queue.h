@@ -1,9 +1,12 @@
 #ifndef _Queue_h
 #define _Queue_h
 
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include "simulador.h"
 
-typedef Process ElementType;
+typedef int ElementType;
 
 struct QueueRecord;
 typedef struct QueueRecord *Queue;

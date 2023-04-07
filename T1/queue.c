@@ -1,11 +1,8 @@
-#include <stdlib.h>
-#include <stdbool.h>
-#include <stdio.h>
 #include "queue.h"
-#include "fatal.h"
 
-
-#define MinQueueSize ( 5 )
+#define MinQueueSize 4
+#define Error( Str )        FatalError( Str )
+#define FatalError( Str )   fprintf( stderr, "%s\n", Str ), exit( 1 )
 
 struct QueueRecord{
     int Capacity;
@@ -14,13 +11,11 @@ struct QueueRecord{
     ElementType *Array;
 };
 
-
 /* FUNCOES AUXILIARES */
 /* numero de elementos na fila */
 int size( Queue Q ){
     return ( Q->Capacity - Q->Front + Q->Rear ) % Q->Capacity;
 }
-
 
 /* indice do proximo elemento  */
 int successor( int i, Queue Q ){
@@ -30,8 +25,6 @@ int successor( int i, Queue Q ){
         return i + 1;
     }
 }
-
-
 
 /* FUNCOES DE MANIPULACAO DE QUEUES */
 Queue CreateQueue( int MaxElements ){
@@ -62,22 +55,18 @@ void DisposeQueue( Queue Q ){
     }
 }
 
-
 bool IsEmptyQueue( Queue Q ){ // verificar se a queue estiver vazia
     return Q->Front == Q->Rear; // se o front e o rear forem iguais a queue está vazia
 }                               
-
 
 bool IsFullQueue( Queue Q ){ // verificar se a queue está cheia
     return size( Q ) == Q->Capacity - 1;
 }
 
-
 void MakeEmptyQueue( Queue Q ){ // esvaziar a queue
     Q->Front = 0; // para esvaziar a queue temos de dar reset
     Q->Rear = 0;  // às variáveis front e rear, dando-lhes o valor 0
 }
-
 
 void Enqueue( ElementType X, Queue Q ){ // adicionar um elemento à queue
     if(IsFullQueue(Q))
@@ -86,13 +75,11 @@ void Enqueue( ElementType X, Queue Q ){ // adicionar um elemento à queue
     Q->Rear = successor(Q->Rear, Q); // definir o próximo índice com a função successor
 }
 
-
 ElementType Front( Queue Q ){ // mostrar o primeiro elemento da queue
     if(IsEmptyQueue(Q))
         Error("Queue is empty.");
     return Q->Array[Q->Front];
 }
-
 
 ElementType Dequeue( Queue Q ){ // remover o primeiro elemento da queue
     ElementType X;          // respeitando o formato First In First Out
