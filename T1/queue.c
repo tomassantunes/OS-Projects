@@ -1,8 +1,8 @@
 #include "queue.h"
 
 #define MinQueueSize 4
-#define Error( Str )        FatalError( Str )
-#define FatalError( Str )   fprintf( stderr, "%s\n", Str ), exit( 1 )
+#define Error(Str)        FatalError(Str)
+#define FatalError(Str)   fprintf(stderr, "%s\n", Str ), exit(1)
 
 struct QueueRecord{
     int Capacity;
@@ -47,7 +47,6 @@ Queue CreateQueue( int MaxElements ){
     return Q;
 }
 
-
 void DisposeQueue( Queue Q ){
     if( Q != NULL ){
         free( Q->Array );
@@ -77,7 +76,7 @@ void Enqueue( ElementType X, Queue Q ){ // adicionar um elemento à queue
 
 ElementType Front( Queue Q ){ // mostrar o primeiro elemento da queue
     if(IsEmptyQueue(Q))
-        Error("Queue is empty.");
+        return -1;
     return Q->Array[Q->Front];
 }
 
