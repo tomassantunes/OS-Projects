@@ -21,5 +21,6 @@ void MakeEmptyQueue( Queue Q );
 ElementType Front( Queue Q );
 void Enqueue( ElementType X, Queue Q );
 ElementType Dequeue( Queue Q );
+void Remove(ElementType X, Queue Q);
 
 #endif

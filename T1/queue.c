@@ -26,6 +26,14 @@ int successor( int i, Queue Q ){
     }
 }
 
+int predecessor(int i, Queue Q) {
+    if(i == 0) {
+        return Q->Capacity - 1;
+    } else {
+        return i - 1;
+    }
+}
+
 /* FUNCOES DE MANIPULACAO DE QUEUES */
 Queue CreateQueue( int MaxElements ){
     Queue Q;
@@ -89,4 +97,37 @@ ElementType Dequeue( Queue Q ){ // remover o primeiro elemento da queue
         Q->Front = successor(Q->Front, Q); // para remover o primeiro elemento adicionamos 1 
     }                                      // ao índice front
     return X;
+}
+
+void Remove(ElementType X, Queue Q) {
+    if(IsEmptyQueue(Q)) return;
+    
+    int i, j;
+    bool found = false;
+
+    // iterate over the elements in the queue
+    for(i = Q->Front, j = 0; j < size(Q); i = successor(i, Q), j++) {
+        if(Q->Array[i] == X) {
+            found = true;
+            break;
+        }
+    }
+
+    if(found) {
+        // shift the remaining elements down one position to fill the gap left by the removed element
+        for(; i != Q->Rear; i = successor(i, Q)) {
+            Q->Array[i] = Q->Array[successor(i, Q)];
+        }
+        Q->Rear = predecessor(Q->Rear, Q); // decrement Rear after removing the element
+    }
+}
+
+void printQueue(Queue Q) {
+    if(IsEmptyQueue(Q)) 
+        Error("Queue is Empty.");
+
+    for(int i = 0; i < size(Q); i++) {
+        printf("%d ", Q->Array[i]);
+    }
+    printf("\n");
 }

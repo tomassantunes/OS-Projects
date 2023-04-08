@@ -3,8 +3,8 @@
 #include "queue.h"
 
 #define MAX 100
-#define NUMPROGRAMS 5
-#define NUMPROCESS 10
+#define NUMPROGRAMS 3
+#define NUMPROCESS 8
 
 #define NONE -1
 #define NOTCREATED -1
@@ -18,7 +18,8 @@
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
 
 Program programs[NUMPROGRAMS + 1];
-Queue Q;
+Queue R; // READY queue
+Queue B; // BLOCKED queue
 int instant = 0;
 int running = NONE;
 
@@ -31,7 +32,6 @@ int notFinished() {
     }
 
     if(n > 0) return 1;
-
     return 0;
 }
 
@@ -42,29 +42,33 @@ void changeState(int pid) {
                 programs[pid].state = NEW;
             break;
         case NEW:      // NEW -> READY
-            if(running == NONE) {
+            if(running == NONE && IsEmptyQueue(R)) {
                 programs[pid].state = RUN;
                 running = pid;
                 break;
             }
             programs[pid].state = READY;
-            Enqueue(pid, Q);
+            Enqueue(pid, R);
             break;
         case READY:    // READY -> RUN
             if(running != NONE) break;
-            programs[pid].state = RUN;
-            running = pid;
-            Dequeue(Q);
+            if(Front(R) == pid) {
+                Dequeue(R);
+                programs[pid].state = RUN;
+                running = pid;
+            }
             break;
         case RUN:      // RUN -> BLOCKED
             programs[pid].state = BLOCKED;
-            Enqueue(pid, Q);
+            if(running == pid)
+                running = NONE;
+            Enqueue(pid, B);
             break;
-        case BLOCKED:  // BLOCKED -> RUN
-            if(running != NONE) break;
-            programs[pid].state = RUN;
-            running = pid;
-            Dequeue(Q);
+        case BLOCKED:  // BLOCKED -> READY
+            if(Front(B) == pid) {
+                Enqueue(Dequeue(B), R);
+                programs[pid].state = READY;
+            }
             break;
         case EXIT:     // EXIT -> FINISHED
             programs[pid].state = FINISHED;
@@ -100,8 +104,14 @@ void showState(int pid) {
     }
 }
 
+/*! TODO:
+ *
+ * @todo corrigir a forma como o programa corre os estados, olhar para o enunciado
+ */
+
 void run() {
-    Q = CreateQueue(MAX);
+    R = CreateQueue(MAX);
+    B = CreateQueue(MAX);
     
     for(int i = 0; i < NUMPROGRAMS; i++) {
         changeState(i);
@@ -116,7 +126,7 @@ void run() {
             printf("%d  |", instant);
 
         for(int i = 0; i < NUMPROGRAMS; i++) {
-            if(programs[i].state == RUN || (Front(Q) == i && programs[i].state == BLOCKED)) {
+            if(programs[i].state == RUN || (Front(B) == i && programs[i].state == BLOCKED)) {
                 programs[i].time[programs[i].exec]--;
             }
 
@@ -128,10 +138,15 @@ void run() {
             if(programs[i].time[programs[i].exec] == 0) {
                 programs[i].exec++;
                 if(programs[i].time[programs[i].exec] == 0) {
-                    if(programs[i].state != EXIT && programs[i].state != FINISHED)
+                    if(programs[i].state != EXIT && programs[i].state != FINISHED) {
                         programs[i].state = EXIT;
-                    else
-                     programs[i].state = FINISHED;
+                        Remove(i, B);
+                        Remove(i, R);
+                    } else {
+                        programs[i].state = FINISHED;
+                    }
+                } else {
+                    changeState(i);
                 }
             } else {
                 changeState(i);
@@ -140,6 +155,8 @@ void run() {
 
         running = NONE;
         instant++;
+
+        if(instant == 100) break;
     }
 
     if(instant < 10)
