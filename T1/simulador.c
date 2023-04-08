@@ -109,6 +109,15 @@ void showState(int pid) {
  * @todo corrigir a forma como o programa corre os estados, olhar para o enunciado
  */
 
+void printPrograms() {
+    for(int i = 0; i < NUMPROGRAMS; i++) {
+        for(int j = 0; j < NUMPROCESS; j++) {
+            printf("%d ", programs[i].time[j]);
+        }
+        printf("\n");
+    }
+}
+
 void run() {
     R = CreateQueue(MAX);
     B = CreateQueue(MAX);
@@ -120,6 +129,7 @@ void run() {
     instant++;
 
     while(notFinished()) {
+        printPrograms();
         if(instant < 10)
             printf("%d   |", instant);
         else
@@ -175,9 +185,9 @@ void createPrograms(int p[NUMPROGRAMS][NUMPROCESS]) {
     printf("i   |");
     for(int i = 0; i < NUMPROGRAMS; i++) {
         programs[i].start = p[i][0];
-        programs[i].exec = 0;
+        programs[i].exec = 1;
         programs[i].state = NOTCREATED;
-        programs[i].time = p[i] + 1;
+        programs[i].time = p[i];
 
         if(i < 9) {
             printf("  p0%d  |", i+1);
