@@ -37,40 +37,46 @@ int notFinished() {
 
 void changeState(int pid) {
     switch(programs[pid].state) {
-        case NOTCREATED:  // process not created -> NEW
+        case NOTCREATED:               // process not created -> NEW
             if(programs[pid].start <= instant)
                 programs[pid].state = NEW;
+
             break;
-        case NEW:      // NEW -> READY
+        case NEW:                      // NEW -> READY
             if(running == NONE && IsEmptyQueue(R)) {
                 programs[pid].state = RUN;
                 running = pid;
                 break;
             }
+
             programs[pid].state = READY;
             Enqueue(pid, R);
+
             break;
-        case READY:    // READY -> RUN
+        case READY:                    // READY -> RUN
             if(running != NONE) break;
+
             if(Front(R) == pid) {
                 Dequeue(R);
                 programs[pid].state = RUN;
                 running = pid;
             }
             break;
-        case RUN:      // RUN -> BLOCKED
+        case RUN:                      // RUN -> BLOCKED
             programs[pid].state = BLOCKED;
+
             if(running == pid)
                 running = NONE;
+
             Enqueue(pid, B);
             break;
-        case BLOCKED:  // BLOCKED -> READY
+        case BLOCKED:                  // BLOCKED -> READY
             if(Front(B) == pid) {
                 Enqueue(Dequeue(B), R);
                 programs[pid].state = READY;
             }
             break;
-        case EXIT:     // EXIT -> FINISHED
+        case EXIT:                     // EXIT -> FINISHED
             programs[pid].state = FINISHED;
             break;
         default:
@@ -104,11 +110,6 @@ void showState(int pid) {
     }
 }
 
-/*! TODO:
- *
- * @todo corrigir a forma como o programa corre os estados, olhar para o enunciado
- */
-
 void printPrograms() {
     for(int i = 0; i < NUMPROGRAMS; i++) {
         for(int j = 0; j < NUMPROCESS; j++) {
@@ -119,9 +120,6 @@ void printPrograms() {
 }
 
 void run() {
-    R = CreateQueue(MAX);
-    B = CreateQueue(MAX);
-    
     for(int i = 0; i < NUMPROGRAMS; i++) {
         changeState(i);
     }
@@ -147,6 +145,7 @@ void run() {
         for(int i = 0; i < NUMPROGRAMS; i++) {
             if(programs[i].time[programs[i].exec] == 0) {
                 programs[i].exec++;
+
                 if(programs[i].time[programs[i].exec] == 0) {
                     if(programs[i].state != EXIT && programs[i].state != FINISHED) {
                         programs[i].state = EXIT;
@@ -177,11 +176,18 @@ void run() {
     for(int i = 0; i < NUMPROGRAMS; i++)
         showState(i);
 
+    
+    printf("\n");
+    printPrograms();
+
     printf("\nDONE.\n");
 
 }
 
 void createPrograms(int p[NUMPROGRAMS][NUMPROCESS]) {
+    R = CreateQueue(MAX);
+    B = CreateQueue(MAX);
+
     printf("i   |");
     for(int i = 0; i < NUMPROGRAMS; i++) {
         programs[i].start = p[i][0];
@@ -205,6 +211,6 @@ int main() {
         {0, 6, 9, 3, 3, 4, 0, 0 },
         {1, 7, 2, 4, 1, 2, 0, 0 },
         {2, 1, 1, 5, 1, 1, 0, 0}};
-    
+
     createPrograms(programas);
 }
