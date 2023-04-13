@@ -1,6 +1,5 @@
 #include "simulador.h"
 #include "queue.c"
-#include "queue.h"
 
 #define MAX 100
 #define NUMPROGRAMS 3
@@ -54,27 +53,31 @@ void changeState(int pid) {
 
             break;
         case READY:                    // READY -> RUN
-            if(running != NONE) break;
-
-            if(Front(R) == pid) {
+            if(Front(R) == pid && running == NONE) {
                 Dequeue(R);
                 programs[pid].state = RUN;
                 running = pid;
             }
             break;
         case RUN:                      // RUN -> BLOCKED
-            programs[pid].state = BLOCKED;
+            if(running != pid || programs[pid].time[programs[pid].exec] != 0) break;
 
-            if(running == pid)
-                running = NONE;
+            programs[pid].state = BLOCKED;
+            programs[pid].exec++;
+
+            running = NONE;
 
             Enqueue(pid, B);
             break;
         case BLOCKED:                  // BLOCKED -> READY
+            if(programs[pid].time[programs[pid].exec] != 0) break; 
+
             if(Front(B) == pid) {
                 Enqueue(Dequeue(B), R);
                 programs[pid].state = READY;
+                programs[pid].exec++;
             }
+
             break;
         case EXIT:                     // EXIT -> FINISHED
             programs[pid].state = FINISHED;
@@ -143,35 +146,29 @@ void run() {
         printf("\n");
 
         for(int i = 0; i < NUMPROGRAMS; i++) {
-            if(programs[i].time[programs[i].exec] == 0) {
-                programs[i].exec++;
-
-                if(programs[i].time[programs[i].exec] == 0) {
-                    if(programs[i].state != EXIT && programs[i].state != FINISHED) {
-                        programs[i].state = EXIT;
-                        Remove(i, B);
-                        Remove(i, R);
-                    } else {
-                        programs[i].state = FINISHED;
-                    }
+            if(programs[i].time[programs[i].exec] == 0 && programs[i].time[programs[i].exec+1] == 0) {
+                if(programs[i].state != EXIT && programs[i].state != FINISHED) {
+                    programs[i].state = EXIT;
+                    Remove(i, B);
+                    Remove(i, R);
                 } else {
-                    changeState(i);
+                    programs[i].state = FINISHED;
                 }
-            } else {
-                changeState(i);
             }
+            changeState(i);
         }
 
-        running = NONE;
         instant++;
 
-        if(instant == 100) break;
+        if(instant == 50) break;
     }
 
     if(instant < 10)
         printf("%d   |", instant);
-    else
+    else if(instant < 100)
         printf("%d  |", instant);
+    else
+        printf("%d |", instant);
 
     for(int i = 0; i < NUMPROGRAMS; i++)
         showState(i);
@@ -181,7 +178,6 @@ void run() {
     printPrograms();
 
     printf("\nDONE.\n");
-
 }
 
 void createPrograms(int p[NUMPROGRAMS][NUMPROCESS]) {
