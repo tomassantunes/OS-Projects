@@ -130,20 +130,13 @@ void run() {
     instant++;
 
     while(notFinished()) {
-        printPrograms();
+        // printPrograms();
         if(instant < 10)
             printf("%d   |", instant);
-        else
+        else if(instant < 100)
             printf("%d  |", instant);
-
-        for(int i = 0; i < NUMPROGRAMS; i++) {
-            if(programs[i].state == RUN || (Front(B) == i && programs[i].state == BLOCKED)) {
-                programs[i].time[programs[i].exec]--;
-            }
-
-            showState(i);
-        }
-        printf("\n");
+        else
+            printf("%d |", instant);
 
         for(int i = 0; i < NUMPROGRAMS; i++) {
             if(programs[i].time[programs[i].exec] == 0 && programs[i].time[programs[i].exec+1] == 0) {
@@ -151,16 +144,22 @@ void run() {
                     programs[i].state = EXIT;
                     Remove(i, B);
                     Remove(i, R);
+                    if(running == i) running = NONE;
                 } else {
                     programs[i].state = FINISHED;
                 }
             }
+
+            if(programs[i].state == RUN || (Front(B) == i && programs[i].state == BLOCKED)) {
+                programs[i].time[programs[i].exec]--;
+            }
+
+            showState(i);
             changeState(i);
         }
+        printf("\n");
 
         instant++;
-
-        if(instant == 50) break;
     }
 
     if(instant < 10)
@@ -173,9 +172,10 @@ void run() {
     for(int i = 0; i < NUMPROGRAMS; i++)
         showState(i);
 
-    
-    printf("\n");
-    printPrograms();
+    // printf("\n");
+    // printPrograms();
+    // 
+    // printf("\n");
 
     printf("\nDONE.\n");
 }
