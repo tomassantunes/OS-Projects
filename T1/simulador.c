@@ -113,15 +113,6 @@ void showState(int pid) {
     }
 }
 
-void printPrograms() {
-    for(int i = 0; i < NUMPROGRAMS; i++) {
-        for(int j = 0; j < NUMPROCESS; j++) {
-            printf("%d ", programs[i].time[j]);
-        }
-        printf("\n");
-    }
-}
-
 void run() {
     for(int i = 0; i < NUMPROGRAMS; i++) {
         changeState(i);
@@ -130,7 +121,6 @@ void run() {
     instant++;
 
     while(notFinished()) {
-        // printPrograms();
         if(instant < 10)
             printf("%d   |", instant);
         else if(instant < 100)
@@ -172,11 +162,6 @@ void run() {
     for(int i = 0; i < NUMPROGRAMS; i++)
         showState(i);
 
-    // printf("\n");
-    // printPrograms();
-    // 
-    // printf("\n");
-
     printf("\nDONE.\n");
 }
 
@@ -198,8 +183,6 @@ void createPrograms(int p[NUMPROGRAMS][NUMPROCESS]) {
         }
     }
     printf("\n");
-
-    run();
 }
 
 int main() {
@@ -209,4 +192,5 @@ int main() {
         {2, 1, 1, 5, 1, 1, 0, 0}};
 
     createPrograms(programas);
+    run();
 }
