@@ -2,7 +2,7 @@
 #include "queue.c"
 
 #define MAX 100
-#define NUMPROGRAMS 3
+#define NUMPROGRAMS 5
 #define NUMPROCESS 8
 
 #define NONE -1
@@ -61,6 +61,12 @@ void changeState(int pid) {
             break;
         case RUN:                      // RUN -> BLOCKED
             if(running != pid || programs[pid].time[programs[pid].exec] != 0) break;
+
+            if(programs[pid].exec >= NUMPROCESS - 1) {
+                programs[pid].state = EXIT;
+                running = NONE;
+                break;
+            }
 
             programs[pid].state = BLOCKED;
             programs[pid].exec++;
@@ -129,7 +135,7 @@ void run() {
             printf("%d |", instant);
 
         for(int i = 0; i < NUMPROGRAMS; i++) {
-            if(programs[i].time[programs[i].exec] == 0 && programs[i].time[programs[i].exec+1] == 0) {
+            if(programs[i].time[programs[i].exec] == 0 && (programs[i].exec >= NUMPROCESS - 1 || programs[i].time[programs[i].exec+1] == 0)) {
                 if(programs[i].state != EXIT && programs[i].state != FINISHED) {
                     programs[i].state = EXIT;
                     Remove(i, B);
@@ -187,9 +193,12 @@ void createPrograms(int p[NUMPROGRAMS][NUMPROCESS]) {
 
 int main() {
     int programas[NUMPROGRAMS][NUMPROCESS] = {
-        {0, 6, 9, 3, 3, 4, 0, 0 },
-        {1, 7, 2, 4, 1, 2, 0, 0 },
-        {2, 1, 1, 5, 1, 1, 0, 0}};
+        {0, 6, 9, 3, 3, 4, 0, 0},
+        {1, 7, 2, 4, 1, 2, 0, 0},
+        {2, 1, 1, 5, 1, 1, 0, 0},
+        {3, 3, 1, 3, 2, 2, 1, 1},
+        {3, 2, 2, 1, 1, 1, 2, 0},
+    };
 
     createPrograms(programas);
     run();
