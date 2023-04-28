@@ -1,20 +1,4 @@
 #include "simulador.h"
-#include "queue.c"
-
-#define MAX 100
-#define NUMPROGRAMS 5
-#define NUMPROCESS 8
-
-#define NONE -1
-#define NOTCREATED -1
-#define NEW 0
-#define READY 1
-#define RUN 2
-#define BLOCKED 3
-#define EXIT 4
-#define FINISHED 5
-
-#define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
 
 Program programs[NUMPROGRAMS + 1];
 Queue R; // READY queue

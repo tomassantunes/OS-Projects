@@ -1,7 +1,20 @@
 #ifndef _Simulador_h
 #define _Simulador_h
 
-#define NUMSTATES 8
+#include "queue.h"
+
+#define MAX 100
+#define NUMPROGRAMS 5
+#define NUMPROCESS 8
+
+#define NONE -1
+#define NOTCREATED -1
+#define NEW 0
+#define READY 1
+#define RUN 2
+#define BLOCKED 3
+#define EXIT 4
+#define FINISHED 5
 
 typedef struct {
     int start;
@@ -9,5 +22,11 @@ typedef struct {
     int state;
     int* time;
 } Program;
+
+int notFinished();
+void changeState(int pid);
+void showState(int pid);
+void run();
+void createPrograms(int p[NUMPROGRAMS][NUMPROCESS]);
 
 #endif
