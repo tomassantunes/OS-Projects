@@ -4,7 +4,7 @@
 #include "queue.h"
 
 #define MAX 100
-#define NUMPROGRAMS 5
+#define NUMPROGRAMS 3
 #define NUMPROCESS 8
 
 #define NONE -1

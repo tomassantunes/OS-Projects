@@ -111,20 +111,11 @@ void Remove(ElementType X, Queue Q) {
     if (IsEmptyQueue(Q)) return;
     
     int i, j;
-    bool found = false;
-
     for(i = Q->Front, j = 0; j < size(Q); i = successor(i, Q), j++) {
         if (Q->Array[i] == X) {
-            found = true;
-            break;
-        }
-    }
-
-    if (found) {
-        for(; i != Q->Rear; i = successor(i, Q)) {
             Q->Array[i] = Q->Array[successor(i, Q)];
+            Q->Rear = predecessor(Q->Rear, Q);
         }
-        Q->Rear = predecessor(Q->Rear, Q);
     }
 }
 
