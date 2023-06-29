@@ -5,7 +5,7 @@
 #include "string.h"
 
 #define MAX 100
-#define NUMPROGRAMS 8
+#define NUMPROGRAMS 3
 #define NUMPROCESS 10
 
 #define NONE -1

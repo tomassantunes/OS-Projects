@@ -119,6 +119,30 @@ void Remove(ElementType X, Queue Q) {
     }
 }
 
+int FindPosition(ElementType X, Queue Q) {
+    if (IsEmptyQueue(Q)) return -1;
+    
+    int i, j;
+    for(i = Q->Front, j = 0; j < size(Q); i = successor(i, Q), j++) {
+        if (Q->Array[i] == X) {
+            return i;    
+ }
+    }
+}
+
+int InQueue(ElementType X, Queue Q) {
+    if (IsEmptyQueue(Q)) return 0;
+    
+    int i, j;
+    for(i = Q->Front, j = 0; j < size(Q); i = successor(i, Q), j++) {
+        if (Q->Array[i] == X) {
+            return 1;    
+        }
+    }
+
+    return 0;
+}
+
 void printQueue(Queue Q) {
     if (IsEmptyQueue(Q)) 
         Error("Queue is Empty.");

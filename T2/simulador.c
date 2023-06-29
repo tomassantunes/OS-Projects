@@ -27,13 +27,14 @@ void changeState(int pid) {
 
             break;
         case NEW:                      // NEW -> READY
-            if(/* running == NONE &&  */IsEmptyQueue(R)) {
+            if(running == NONE && IsEmptyQueue(R)) {
                 programs[pid].state = RUN;
-                // running = pid;
-                //
+                running = pid;
+
                 if(programs[pid].time[programs[pid].exec + 1] > -1 && programs[programs[pid].time[programs[pid].exec + 1]].state == BLOCKED) {
-                    programs[programs[pid].time[programs[pid].exec + 1]].state = UNBLOCK;
-                    Remove(programs[pid].time[programs[pid].exec + 1], B);
+                    programs[programs[pid].time[programs[pid].exec + 1] - 1].state = UNBLOCK;
+                    Remove(programs[pid].time[programs[pid].exec + 1] - 1, B);
+                    Enqueue(programs[pid].time[programs[pid].exec + 1] - 1, R);
                 }
                 break;
             }
@@ -43,30 +44,31 @@ void changeState(int pid) {
 
             break;
         case READY:                    // READY -> RUN
-            if(Front(R) == pid/*  && running == NONE */) {
+            if(Front(R) == pid && running == NONE) {
                 Dequeue(R);
                 programs[pid].state = RUN;
-                // running = pid;
+                running = pid;
 
                 if(programs[pid].time[programs[pid].exec + 1] > -1 && programs[programs[pid].time[programs[pid].exec + 1]].state == BLOCKED) {
-                    programs[programs[pid].time[programs[pid].exec + 1]].state = UNBLOCK;
-                    Remove(programs[pid].time[programs[pid].exec + 1], B);
+                    programs[programs[pid].time[programs[pid].exec + 1] - 1].state = UNBLOCK;
+                    Remove(programs[pid].time[programs[pid].exec + 1] - 1, B);
+                    Enqueue(programs[pid].time[programs[pid].exec + 1] - 1, R);
                 }
             }
             break;
         case RUN:                      // RUN -> BLOCKED
-            if(/* running != pid ||  */programs[pid].time[programs[pid].exec] != 0) break;
+            if(running != pid || programs[pid].time[programs[pid].exec] > 0) break;
 
             if(programs[pid].exec >= NUMPROCESS - 1) {
                 programs[pid].state = EXIT;
-                // running = NONE;
+                running = NONE;
                 break;
             }
 
             programs[pid].state = BLOCKED;
             programs[pid].exec += 2;
 
-            // running = NONE;
+            running = NONE;
 
             Enqueue(pid, B);
             break;
@@ -81,11 +83,13 @@ void changeState(int pid) {
 
             break;
         case UNBLOCK:
-            programs[pid].state = RUN;
+            programs[pid].state = READY;
             programs[pid].exec++;
 
             if(programs[pid].time[programs[pid].exec + 1] > -1 && programs[programs[pid].time[programs[pid].exec + 1]].state == BLOCKED) {
-                    programs[programs[pid].time[programs[pid].exec + 1]].state = UNBLOCK;
+                    programs[programs[pid].time[programs[pid].exec + 1] - 1].state = UNBLOCK;
+                    Remove(programs[pid].time[programs[pid].exec + 1] - 1, B);
+                    Enqueue(programs[pid].time[programs[pid].exec + 1] - 1, R);
             }
 
             break;
@@ -147,7 +151,7 @@ void run() {
                     programs[i].state = EXIT;
                     Remove(i, B);
                     Remove(i, R);
-                    // if(running == i) running = NONE;
+                    if(running == i) running = NONE;
                 } else {
                     programs[i].state = FINISHED;
                 }
@@ -160,6 +164,8 @@ void run() {
             showState(i);
             changeState(i);
         }
+        
+
         printf("\n");
 
         instant++;
@@ -210,7 +216,7 @@ void printPrograms(int p[NUMPROGRAMS][NUMPROCESS]) {
 }
 
 int main() {
-    FILE* file = fopen("example.txt", "r");
+    FILE* file = fopen("example2.txt", "r");
     int programas[NUMPROGRAMS][NUMPROCESS];
     if (file == NULL) {
         printf("Failed to open the file.\n");
@@ -224,11 +230,6 @@ int main() {
     }
         
     fclose(file);
-
-    // int programas[NUMPROGRAMS][NUMPROCESS] = {
-    //     {0, 6, 9, 3, 3, 4, 0, 0},
-    //     {1, 7, 2, 4, 1, 2, 0, 0},
-    //     {2, 1, 1, 5, 1, 1, 0, 0}};
 
     createPrograms(programas);
     run();
