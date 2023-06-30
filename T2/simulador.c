@@ -1,9 +1,9 @@
 #include "simulador.h"
-#include <stdio.h>
 
 Program programs[NUMPROGRAMS + 1];
 Queue R; // READY queue
 Queue B; // BLOCKED queue
+Queue UBL; // UNBLOCK queue
 int instant = 0;
 int running = NONE;
 
@@ -31,10 +31,8 @@ void changeState(int pid) {
                 programs[pid].state = RUN;
                 running = pid;
 
-                if(programs[pid].time[programs[pid].exec + 1] > -1 && programs[programs[pid].time[programs[pid].exec + 1]].state == BLOCKED) {
-                    programs[programs[pid].time[programs[pid].exec + 1] - 1].state = UNBLOCK;
-                    Remove(programs[pid].time[programs[pid].exec + 1] - 1, B);
-                    Enqueue(programs[pid].time[programs[pid].exec + 1] - 1, R);
+                if(programs[pid].time[programs[pid].exec + 1] > -1) {
+                    Enqueue(programs[pid].time[programs[pid].exec + 1] - 1, UBL);
                 }
                 break;
             }
@@ -49,10 +47,8 @@ void changeState(int pid) {
                 programs[pid].state = RUN;
                 running = pid;
 
-                if(programs[pid].time[programs[pid].exec + 1] > -1 && programs[programs[pid].time[programs[pid].exec + 1]].state == BLOCKED) {
-                    programs[programs[pid].time[programs[pid].exec + 1] - 1].state = UNBLOCK;
-                    Remove(programs[pid].time[programs[pid].exec + 1] - 1, B);
-                    Enqueue(programs[pid].time[programs[pid].exec + 1] - 1, R);
+                if(programs[pid].time[programs[pid].exec + 1] > -1) {
+                    Enqueue(programs[pid].time[programs[pid].exec + 1] - 1, UBL);
                 }
             }
             break;
@@ -73,7 +69,7 @@ void changeState(int pid) {
             Enqueue(pid, B);
             break;
         case BLOCKED:                  // BLOCKED -> READY
-            if(programs[pid].time[programs[pid].exec] != 0) break; 
+            if(programs[pid].time[programs[pid].exec] > 0) break;
 
             if(Front(B) == pid) {
                 Enqueue(Dequeue(B), R);
@@ -83,13 +79,17 @@ void changeState(int pid) {
 
             break;
         case UNBLOCK:
+            if(programs[pid].unblockTime < 1) {
+                programs[pid].unblockTime++;
+                break;
+            }
+
             programs[pid].state = READY;
             programs[pid].exec++;
+            programs[pid].unblockTime = 0;
 
-            if(programs[pid].time[programs[pid].exec + 1] > -1 && programs[programs[pid].time[programs[pid].exec + 1]].state == BLOCKED) {
-                    programs[programs[pid].time[programs[pid].exec + 1] - 1].state = UNBLOCK;
-                    Remove(programs[pid].time[programs[pid].exec + 1] - 1, B);
-                    Enqueue(programs[pid].time[programs[pid].exec + 1] - 1, R);
+            if(programs[pid].time[programs[pid].exec + 1] > -1) {
+                Enqueue(programs[pid].time[programs[pid].exec + 1] - 1, UBL);
             }
 
             break;
@@ -98,6 +98,19 @@ void changeState(int pid) {
             break;
         default:
             break;
+    }
+}
+
+void unblockPro() {
+    if(IsEmptyQueue(UBL)) return;
+
+    while(!IsEmptyQueue(UBL)) {
+        int pid = Dequeue(UBL);
+        if(programs[pid].state == BLOCKED){
+            programs[pid].state = UNBLOCK;
+            Remove(pid, B);
+            Enqueue(pid, R);
+        }
     }
 }
 
@@ -131,11 +144,11 @@ void showState(int pid) {
 }
 
 void run() {
-    for(int i = 0; i < NUMPROGRAMS; i++) {
+    /* for(int i = 0; i < NUMPROGRAMS; i++) {
         changeState(i);
     }
 
-    instant++;
+    instant++; */
 
     while(notFinished()) {
         if(instant < 10)
@@ -160,11 +173,13 @@ void run() {
             if(programs[i].state == RUN || (Front(B) == i && programs[i].state == BLOCKED)) {
                 programs[i].time[programs[i].exec]--;
             }
-
-            showState(i);
+            
             changeState(i);
         }
+
         
+        for(int i = 0; i < NUMPROGRAMS; i++) showState(i);
+        unblockPro();
 
         printf("\n");
 
@@ -189,6 +204,7 @@ void run() {
 void createPrograms(int p[NUMPROGRAMS][NUMPROCESS]) {
     R = CreateQueue(MAX);
     B = CreateQueue(MAX);
+    UBL = CreateQueue(MAX);
 
     printf("i   |");
     for(int i = 0; i < NUMPROGRAMS; i++) {
@@ -196,6 +212,7 @@ void createPrograms(int p[NUMPROGRAMS][NUMPROCESS]) {
         programs[i].exec = 1;
         programs[i].state = NOTCREATED;
         programs[i].time = p[i];
+        programs[i].unblockTime = 0;
 
         if(i < 9) {
             printf("  p0%d  |", i+1);

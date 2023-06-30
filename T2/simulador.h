@@ -23,6 +23,7 @@ typedef struct {
     int exec;
     int state;
     int* time;
+    int unblockTime;
 } Program;
 
 int notFinished();
