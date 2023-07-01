@@ -55,7 +55,7 @@ void changeState(int pid) {
         case RUN:                      // RUN -> BLOCKED
             if(running != pid || programs[pid].time[programs[pid].exec] > 0) break;
 
-            if(programs[pid].exec >= NUMPROCESS - 1) {
+            if(programs[pid].exec >= NUMPROCESS - 1 || (programs[pid].time[programs[pid].exec] <= 0 && programs[pid].time[programs[pid].exec + 2] <= 0)) {
                 programs[pid].state = EXIT;
                 running = NONE;
                 break;
@@ -144,12 +144,6 @@ void showState(int pid) {
 }
 
 void run() {
-    /* for(int i = 0; i < NUMPROGRAMS; i++) {
-        changeState(i);
-    }
-
-    instant++; */
-
     while(notFinished()) {
         if(instant < 10)
             printf("%d   |", instant);
@@ -177,15 +171,13 @@ void run() {
             changeState(i);
         }
 
-        
         for(int i = 0; i < NUMPROGRAMS; i++) showState(i);
+
         unblockPro();
 
         printf("\n");
 
         instant++;
-
-        if(instant == 50) break;
     }
 
     if(instant < 10)
