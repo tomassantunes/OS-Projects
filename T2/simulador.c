@@ -171,6 +171,12 @@ void run() {
             changeState(i);
         }
 
+        for(int i = 0; i < NUMPROGRAMS; i++) {
+            if(programs[i].state == READY) {
+                changeState(i);
+            }
+        }
+
         for(int i = 0; i < NUMPROGRAMS; i++) showState(i);
 
         unblockPro();
@@ -187,8 +193,10 @@ void run() {
     else
         printf("%d |", instant);
 
-    for(int i = 0; i < NUMPROGRAMS; i++)
+    for(int i = 0; i < NUMPROGRAMS; i++) {
+        if(programs[i].state == EXIT) programs[i].state = FINISHED;
         showState(i);
+    }
 
     printf("\nDONE.\n");
 }
@@ -225,7 +233,7 @@ void printPrograms(int p[NUMPROGRAMS][NUMPROCESS]) {
 }
 
 int main() {
-    FILE* file = fopen("example2.txt", "r");
+    FILE* file = fopen("example.txt", "r");
     int programas[NUMPROGRAMS][NUMPROCESS];
     if (file == NULL) {
         printf("Failed to open the file.\n");
