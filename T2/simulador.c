@@ -78,7 +78,7 @@ void changeState(int pid) {
             }
 
             break;
-        case UNBLOCK:
+        case UNBLOCK:                  // UNBLOCKED -> READY 
             if(programs[pid].unblockTime < 1) {
                 programs[pid].unblockTime++;
                 break;
@@ -223,15 +223,6 @@ void createPrograms(int p[NUMPROGRAMS][NUMPROCESS]) {
     printf("\n");
 }
 
-void printPrograms(int p[NUMPROGRAMS][NUMPROCESS]) {
-    for(int i = 0; i < NUMPROGRAMS; i++) {
-        for(int j = 0; j < NUMPROCESS; j++) {
-            printf("%d ", p[i][j]);
-        }
-        printf("\n");
-    }
-}
-
 int main() {
     FILE* file = fopen("example.txt", "r");
     int programas[NUMPROGRAMS][NUMPROCESS];
@@ -250,8 +241,6 @@ int main() {
 
     createPrograms(programas);
     run();
-    
-    // printPrograms(programas);
 }
 
 
